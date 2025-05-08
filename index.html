@@ -6,34 +6,49 @@
   <title>Nutrition Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
+  <script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .btn {
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+  </style>
 </head>
-<body class="bg-green-100 font-sans">
-  <div class="container mx-auto p-6">
-    <h1 class="text-4xl font-bold text-center text-yellow-600 mb-8">My Nutrition Fridge</h1>
+<body class="bg-gray-50">
+  <div class="container mx-auto p-6 max-w-4xl">
+    <h1 class="text-4xl font-bold text-center text-gray-900 mb-8">My Nutrition Fridge</h1>
 
     <!-- Barcode Scanner -->
-    <div class="bg-white p-8 rounded-xl shadow-lg mb-8">
-      <h2 class="text-2xl font-semibold text-green-700 mb-6">Scan a Barcode</h2>
-      <p class="text-gray-600 mb-4">Point your camera at a barcode to scan.</p>
+    <div class="bg-white p-8 rounded-2xl shadow-lg mb-8">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-6">Scan a Barcode</h2>
+      <p class="text-gray-600 mb-4">Point your camera at a barcode to scan a product.</p>
       <div class="flex flex-col space-y-4">
-        <video id="scanner" class="w-full h-64 bg-gray-200 rounded-lg"></video>
-        <button onclick="startScanner()" class="bg-green-600 text-white p-3 rounded-lg text-lg hover:bg-green-700">Start Scanner</button>
-        <button onclick="stopScanner()" class="bg-red-600 text-white p-3 rounded-lg text-lg hover:bg-red-700">Stop Scanner</button>
+        <video id="scanner" class="w-full h-64 bg-gray-100 rounded-lg"></video>
+        <div class="flex space-x-4">
+          <button onclick="startScanner()" class="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 rounded-lg text-lg font-semibold btn">Start Scanner</button>
+          <button onclick="stopScanner()" class="flex-1 bg-gray-300 text-gray-800 p-3 rounded-lg text-lg font-semibold btn">Stop Scanner</button>
+        </div>
         <div id="scannedProduct" class="bg-blue-50 p-4 rounded-lg hidden">
-          <p id="scannedName" class="font-semibold"></p>
-          <p id="scannedNutrients"></p>
-          <input id="barcodeWeight" type="number" placeholder="Weight (g)" class="p-3 border-2 border-green-300 rounded-lg text-lg w-full mb-2">
-          <button onclick="addScannedToFridge()" class="bg-green-600 text-white p-3 rounded-lg text-lg hover:bg-green-700 w-full">Add to Fridge</button>
+          <p id="scannedName" class="font-semibold text-lg text-gray-800"></p>
+          <p id="scannedNutrients" class="text-gray-600"></p>
+          <input id="barcodeWeight" type="number" placeholder="Weight (g)" class="p-3 border border-gray-300 rounded-lg text-lg w-full mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <button onclick="addScannedToFridge()" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 rounded-lg text-lg font-semibold btn">Add to Fridge</button>
         </div>
       </div>
     </div>
 
     <!-- Manual Add to Fridge -->
-    <div class="bg-white p-8 rounded-xl shadow-lg mb-8">
-      <h2 class="text-2xl font-semibold text-green-700 mb-6">Add Food Manually</h2>
+    <div class="bg-white p-8 rounded-2xl shadow-lg mb-8">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-6">Add Food Manually</h2>
       <div class="flex flex-col space-y-4">
-        <select id="foodSelect" class="p-3 border-2 border-green-300 rounded-lg text-lg">
+        <select id="foodSelect" class="p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
           <option value="banana">Banana (100g)</option>
           <option value="chicken">Chicken (100g)</option>
           <option value="egg">Egg (50g, 1 large)</option>
@@ -48,39 +63,39 @@
           <option value="cumin">Cumin (100g)</option>
           <option value="coriander">Coriander (100g)</option>
         </select>
-        <input id="foodWeight" type="number" placeholder="Weight (g)" class="p-3 border-2 border-green-300 rounded-lg text-lg">
-        <button onclick="addToFridge()" class="bg-green-600 text-white p-3 rounded-lg text-lg hover:bg-green-700">Add to Fridge</button>
+        <input id="foodWeight" type="number" placeholder="Weight (g)" class="p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <button onclick="addToFridge()" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 rounded-lg text-lg font-semibold btn">Add to Fridge</button>
       </div>
     </div>
 
     <!-- Virtual Fridge -->
-    <div class="bg-white p-8 rounded-xl shadow-lg mb-8">
-      <h2 class="text-2xl font-semibold text-green-700 mb-6">Your Fridge</h2>
-      <div id="fridge" class="grid grid-cols-1 sm:grid-cols-3 gap-6"></div>
+    <div class="bg-white p-8 rounded-2xl shadow-lg mb-8">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-6">Your Fridge</h2>
+      <div id="fridge" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     </div>
 
     <!-- Log Meal -->
-    <div class="bg-white p-8 rounded-xl shadow-lg mb-8">
-      <h2 class="text-2xl font-semibold text-green-700 mb-6">Log Your Meal</h2>
+    <div class="bg-white p-8 rounded-2xl shadow-lg mb-8">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-6">Log Your Meal</h2>
       <div class="flex flex-col space-y-4">
-        <select id="mealFoodSelect" class="p-3 border-2 border-green-300 rounded-lg text-lg"></select>
-        <input id="mealWeight" type="number" placeholder="Weight used (g)" class="p-3 border-2 border-green-300 rounded-lg text-lg">
-        <select id="cookingMethod" class="p-3 border-2 border-green-300 rounded-lg text-lg">
+        <select id="mealFoodSelect" class="p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+        <input id="mealWeight" type="number" placeholder="Weight used (g)" class="p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <select id="cookingMethod" class="p-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
           <option value="raw">Raw</option>
           <option value="boiled">Boiled</option>
           <option value="fried">Fried</option>
           <option value="grilled">Grilled</option>
         </select>
-        <button onclick="addToMeal()" class="bg-blue-600 text-white p-3 rounded-lg text-lg hover:bg-blue-700">Add to Meal</button>
-        <div id="currentMeal" class="mt-6 text-lg"></div>
-        <button onclick="logMeal()" class="bg-purple-600 text-white p-3 rounded-lg text-lg hover:bg-purple-700 mt-4">Save Meal</button>
+        <button onclick="addToMeal()" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 rounded-lg text-lg font-semibold btn">Add to Meal</button>
+        <div id="currentMeal" class="mt-6"></div>
+        <button onclick="logMeal()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-3 rounded-lg text-lg font-semibold btn">Save Meal</button>
       </div>
     </div>
 
     <!-- Daily Report -->
-    <div class="bg-white p-8 rounded-xl shadow-lg">
-      <h2 class="text-2xl font-semibold text-green-700 mb-6">Today’s Nutrition</h2>
-      <div id="report" class="mb-6 text-lg"></div>
+    <div class="bg-white p-8 rounded-2xl shadow-lg">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-6">Today’s Nutrition</h2>
+      <div id="report" class="mb-6"></div>
       <canvas id="nutritionChart" class="max-w-full"></canvas>
     </div>
   </div>
@@ -108,7 +123,7 @@
       raw: { protein: 1, carbs: 1, calories: 1 },
       boiled: { protein: 0.92, carbs: 0.95, calories: 0.90 },
       fried: { protein: 1, carbs: 1.1, calories: 1.25 },
-      grilled: { protein: 0.98, carbs: 1, calories: 1.10 }
+      grilled: { protein: 0.92, carbs: 1, calories: 1.10 }
     };
 
     // State
@@ -116,6 +131,7 @@
     let currentMeal = [];
     let meals = JSON.parse(localStorage.getItem('meals')) || [];
     let scannedProduct = null;
+    let codeReader = null;
 
     // Initialize
     updateFridgeDisplay();
@@ -123,35 +139,37 @@
     updateReport();
 
     // Barcode Scanner
-    function startScanner() {
-      document.getElementById('scannedProduct').classList.add('hidden');
-      Quagga.init({
-        inputStream: {
-          name: "Live",
-          type: "LiveStream",
-          target: document.getElementById('scanner')
-        },
-        decoder: { readers: ["ean_reader", "upc_reader", "ean_8_reader"] },
-        locate: true
-      }, function(err) {
-        if (err) {
-          alert('Scanner error: ' + err.message);
-          console.error(err);
-          return;
-        }
-        Quagga.start();
-      });
-      Quagga.onDetected(function(data) {
-        if (data && data.codeResult && data.codeResult.code) {
-          const barcode = data.codeResult.code;
-          fetchProduct(barcode);
-          Quagga.stop();
-        }
-      });
+    async function startScanner() {
+      try {
+        document.getElementById('scannedProduct').classList.add('hidden');
+        codeReader = new ZXing.BrowserMultiFormatReader();
+        const videoElement = document.getElementById('scanner');
+        const result = await codeReader.decodeFromVideoDevice(null, videoElement, (result, error) => {
+          if (result) {
+            const barcode = result.text;
+            fetchProduct(barcode);
+            codeReader.reset();
+            videoElement.srcObject.getTracks().forEach(track => track.stop());
+          }
+          if (error && error.name !== 'NotFoundException') {
+            console.error('Scanner error:', error);
+          }
+        });
+      } catch (error) {
+        alert('Scanner error: ' + error.message);
+        stopScanner();
+      }
     }
 
     function stopScanner() {
-      Quagga.stop();
+      if (codeReader) {
+        codeReader.reset();
+        codeReader = null;
+      }
+      const videoElement = document.getElementById('scanner');
+      if (videoElement.srcObject) {
+        videoElement.srcObject.getTracks().forEach(track => track.stop());
+      }
       document.getElementById('scannedProduct').classList.add('hidden');
     }
 
@@ -240,14 +258,14 @@
       fridge.forEach(item => {
         const nutrients = item.nutrients;
         const card = document.createElement('div');
-        card.className = 'bg-green-50 p-6 rounded-lg shadow flex items-center';
+        card.className = 'bg-gray-50 p-6 rounded-lg shadow-sm flex items-center';
         card.innerHTML = `
           <img src="${nutrients.image}" alt="${item.food}" class="w-12 h-12 mr-4">
           <div>
-            <p class="font-bold text-lg">${item.food} (${item.weight}g)</p>
-            <p>Protein: ${(nutrients.protein * item.weight / 100).toFixed(1)}g</p>
-            <p>Carbs: ${(nutrients.carbs * item.weight / 100).toFixed(1)}g</p>
-            <p>Calories: ${(nutrients.calories * item.weight / 100).toFixed(1)}</p>
+            <p class="font-semibold text-gray-800">${item.food} (${item.weight}g)</p>
+            <p class="text-gray-600">Protein: ${(nutrients.protein * item.weight / 100).toFixed(1)}g</p>
+            <p class="text-gray-600">Carbs: ${(nutrients.carbs * item.weight / 100).toFixed(1)}g</p>
+            <p class="text-gray-600">Calories: ${(nutrients.calories * item.weight / 100).toFixed(1)}</p>
           </div>
         `;
         fridgeDiv.appendChild(card);
@@ -285,7 +303,7 @@
 
     function updateCurrentMealDisplay() {
       const mealDiv = document.getElementById('currentMeal');
-      mealDiv.innerHTML = '<h3 class="font-bold text-lg">Current Meal:</h3>';
+      mealDiv.innerHTML = '<h3 class="font-semibold text-lg text-gray-800 mb-2">Current Meal:</h3>';
       if (currentMeal.length === 0) {
         mealDiv.innerHTML += '<p class="text-gray-500">No items added yet.</p>';
       }
@@ -293,11 +311,11 @@
         const nutrients = item.nutrients;
         const modifiers = cookingModifiers[item.cookingMethod];
         mealDiv.innerHTML += `
-          <div class="bg-blue-50 p-4 rounded-lg mt-2">
-            <p class="font-semibold">${item.food} (${item.weight}g, ${item.cookingMethod})</p>
-            <p>Protein: ${(nutrients.protein * item.weight / 100 * modifiers.protein).toFixed(1)}g</p>
-            <p>Carbs: ${(nutrients.carbs * item.weight / 100 * modifiers.carbs).toFixed(1)}g</p>
-            <p>Calories: ${(nutrients.calories * item.weight / 100 * modifiers.calories).toFixed(1)}</p>
+          <div class="bg-blue-50 p-4 rounded-lg mb-2">
+            <p class="font-semibold text-gray-800">${item.food} (${item.weight}g, ${item.cookingMethod})</p>
+            <p class="text-gray-600">Protein: ${(nutrients.protein * item.weight / 100 * modifiers.protein).toFixed(1)}g</p>
+            <p class="text-gray-600">Carbs: ${(nutrients.carbs * item.weight / 100 * modifiers.carbs).toFixed(1)}g</p>
+            <p class="text-gray-600">Calories: ${(nutrients.calories * item.weight / 100 * modifiers.calories).toFixed(1)}</p>
           </div>
         `;
       });
@@ -330,7 +348,7 @@
       const today = new Date().toLocaleDateString();
       const todayMeals = meals.filter(meal => meal.date === today);
       let totalProtein = 0, totalCarbs = 0, totalCalories = 0;
-      reportDiv.innerHTML = '<h3 class="font-bold text-lg">Today’s Meals:</h3>';
+      reportDiv.innerHTML = '<h3 class="font-semibold text-lg text-gray-800 mb-2">Today’s Meals:</h3>';
       if (todayMeals.length === 0) {
         reportDiv.innerHTML += '<p class="text-gray-500">No meals logged today.</p>';
       }
@@ -345,15 +363,15 @@
           totalCarbs += carbs;
           totalCalories += calories;
           reportDiv.innerHTML += `
-            <div class="bg-purple-50 p-4 rounded-lg mt-2">
-              <p class="font-semibold">${item.food} (${item.weight}g, ${item.cookingMethod})</p>
-              <p>Protein: ${protein.toFixed(1)}g, Carbs: ${carbs.toFixed(1)}g, Calories: ${calories.toFixed(1)}</p>
+            <div class="bg-purple-50 p-4 rounded-lg mb-2">
+              <p class="font-semibold text-gray-800">${item.food} (${item.weight}g, ${item.cookingMethod})</p>
+              <p class="text-gray-600">Protein: ${protein.toFixed(1)}g, Carbs: ${carbs.toFixed(1)}g, Calories: ${calories.toFixed(1)}</p>
             </div>
           `;
         });
       });
       reportDiv.innerHTML += `
-        <p class="font-bold text-lg mt-4">Total: Protein: ${totalProtein.toFixed(1)}g, Carbs: ${totalCarbs.toFixed(1)}g, Calories: ${totalCalories.toFixed(1)}</p>
+        <p class="font-semibold text-lg text-gray-800 mt-4">Total: Protein: ${totalProtein.toFixed(1)}g, Carbs: ${totalCarbs.toFixed(1)}g, Calories: ${totalCalories.toFixed(1)}</p>
       `;
       if (totalProtein < 100) {
         reportDiv.innerHTML += '<p class="text-red-600 font-semibold">You’re low on protein today! Aim for 100g.</p>';
@@ -375,7 +393,10 @@
           }]
         },
         options: {
-          scales: { y: { beginAtZero: true } },
+          scales: {
+            y: { beginAtZero: true },
+            x: { grid: { display: false } }
+          },
           plugins: { legend: { display: false } }
         }
       });
